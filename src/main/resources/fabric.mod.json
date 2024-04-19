@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "itemclumps",
+	"version": "${version}",
+	"name": "Item Clumps",
+	"description": "This mod is like bundles but for item stacks.",
+	"authors": [
+		"Modzyyy"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/itemclumps/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.dev.itemclumps.ItemClumps"
+		],
+		"client": [
+			"net.dev.itemclumps.ItemClumpsClient"
+		],
+		"fabric-datagen": [
+			"net.dev.itemclumps.ItemClumpsDataGenerator"
+		]
+	},
+	"mixins": [
+		"itemclumps.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.7",
+		"minecraft": "~1.20.4",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}

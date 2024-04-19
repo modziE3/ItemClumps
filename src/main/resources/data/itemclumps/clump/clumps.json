@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Dirt Blocks",
+    "tag_id": "#minecraft:dirt",
+    "enabled": true
+  },
+  {
+    "name": "Flowers",
+    "tag_id": "#minecraft:flowers",
+    "enabled": true
+  },
+  {
+  "name": "Planks",
+  "tag_id": "#minecraft:planks",
+  "enabled": true
+  }
+]
