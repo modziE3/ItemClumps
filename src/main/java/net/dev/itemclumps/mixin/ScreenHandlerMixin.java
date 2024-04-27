@@ -2,7 +2,6 @@ package net.dev.itemclumps.mixin;
 
 import com.google.common.collect.Sets;
 import net.dev.itemclumps.item.ClumpItem;
-import net.dev.itemclumps.util.ClumpItemUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;

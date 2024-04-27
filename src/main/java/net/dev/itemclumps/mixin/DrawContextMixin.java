@@ -3,7 +3,6 @@ package net.dev.itemclumps.mixin;
 import net.dev.itemclumps.item.ClumpItem;
 import net.dev.itemclumps.model.ItemClumpModels.ClumpModelUtil;
 import net.dev.itemclumps.model.ItemClumpModels.ShiftedBakedModel;
-import net.dev.itemclumps.util.ClumpItemUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.DiffuseLighting;

@@ -1,7 +1,6 @@
 package net.dev.itemclumps.mixin;
 
 import net.dev.itemclumps.item.ClumpItem;
-import net.dev.itemclumps.util.ClumpItemUtil;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;

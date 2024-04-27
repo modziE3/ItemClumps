@@ -1,7 +1,6 @@
 package net.dev.itemclumps.mixin;
 
 import net.dev.itemclumps.item.ClumpItem;
-import net.dev.itemclumps.util.ClumpItemUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.pattern.CachedBlockPosition;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,11 +29,8 @@ public abstract class ItemStackMixin {
     @Shadow public abstract int getCount();
     @Shadow public abstract ItemStack copyWithCount(int count);
     @Shadow public abstract void decrement(int amount);
-
     @Shadow public abstract ItemStack copy();
-
     @Shadow public abstract void setCount(int count);
-
     @Shadow public abstract void increment(int amount);
 
     /**
@@ -53,7 +49,7 @@ public abstract class ItemStackMixin {
         ActionResult actionResult = item.useOnBlock(context);
         if (playerEntity != null && actionResult.shouldIncrementStat()) {
             playerEntity.incrementStat(Stats.USED.getOrCreateStat(item));
-            if (ClumpItemUtil.isClump(this.getItem()) && !playerEntity.isCreative()) {
+            if (ClumpItem.isClump(this.getItem()) && !playerEntity.isCreative()) {
                 this.setStack(ClumpItem.decrementClump((ItemStack) (Object) this, 1));
             }
         }
@@ -99,6 +95,6 @@ public abstract class ItemStackMixin {
 
     @Unique
     public Item getItemOrClump() {
-       return this.isEmpty() ? Items.AIR : (ClumpItemUtil.isClump(this.item) ? ClumpItem.getTopStack((ItemStack)(Object)this).getItem() : this.item);
-   }
+       return this.isEmpty() ? Items.AIR : (ClumpItem.isClump(this.item) ? ClumpItem.getTopStack((ItemStack)(Object)this).getItem() : this.item);
+    }
 }
