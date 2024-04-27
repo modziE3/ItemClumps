@@ -1,11 +1,11 @@
 package net.dev.itemclumps.mixin;
 
 import net.dev.itemclumps.item.ClumpItem;
-import net.dev.itemclumps.item.ClumpItems;
 import net.dev.itemclumps.util.ClumpItemUtil;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.world.gen.GenerationStep;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,15 +16,7 @@ public abstract class SlotMixin {
     @Shadow public abstract ItemStack getStack();
     @Shadow public abstract int getMaxItemCount(ItemStack stack);
     @Shadow public abstract void setStack(ItemStack stack);
-
-    /**
-     * @author Modzyyy
-     * @reason ItemClumps
-     */
-    @Overwrite
-    public boolean canInsert(ItemStack stack) {
-        return true;
-    }
+    @Shadow public abstract boolean canInsert(ItemStack stack);
 
     /**
      * @author Modzyyy
@@ -36,24 +28,29 @@ public abstract class SlotMixin {
             return stack;
         }
         ItemStack itemStack = this.getStack();
+        boolean slotIsClump = ClumpItem.isClump(itemStack.getItem());
+        boolean insertIsClump = ClumpItem.isClump(stack.getItem());
         Item clumpInCommon;
-        int i = Math.min(Math.min(count, stack.getCount()), this.getMaxItemCount(stack) - itemStack.getCount());
+        int splitAmount = Math.min(Math.min(count, stack.getCount()), this.getMaxItemCount(stack) - itemStack.getCount());
         if (itemStack.isEmpty()) {
-            this.setStack(stack.split(i));
-        } else if (ItemStack.canCombine(itemStack, stack)) {
-            if (ClumpItemUtil.isClump(itemStack.getItem())) {
-                ClumpItem.addToClump(itemStack, stack.copy());
-            }
-            stack.decrement(i);
-            itemStack.increment(i);
+            if (insertIsClump) {
+                splitAmount = Math.max(splitAmount, Math.min(ClumpItem.getTopStack(stack).getCount(), this.getMaxItemCount(stack) - itemStack.getCount()));
+                this.setStack(stack.split(splitAmount));
+                stack = ClumpItem.reduceClump(stack);
+            } else this.setStack(stack.split(splitAmount));
+        } else if (ItemStack.canCombine(itemStack, stack) && !slotIsClump && !insertIsClump) {
+            stack.decrement(splitAmount);
+            itemStack.increment(splitAmount);
             this.setStack(itemStack);
-        } else if ((clumpInCommon = ClumpItemUtil.getCommonClumpType(itemStack, stack)) != null) {
+        } else if ((clumpInCommon = ClumpItem.getCommonClumpType(itemStack, stack)) != null) {
+            if (insertIsClump) splitAmount = Math.max(splitAmount, Math.min(ClumpItem.getTopStack(stack).getCount(), this.getMaxItemCount(stack) - itemStack.getCount()));
+            ItemStack splitStack = stack.split(splitAmount);
             ItemStack tempStack = itemStack.copy();
-            itemStack = new ItemStack(clumpInCommon, itemStack.getCount() + i);
+            itemStack = new ItemStack(clumpInCommon, tempStack.getCount() + splitStack.getCount());
             ClumpItem.addToClump(itemStack, tempStack);
-            ClumpItem.addToClump(itemStack, stack.copy());
-            stack.decrement(i);
-            this.setStack(itemStack);
+            ClumpItem.addToClump(itemStack, splitStack);
+            this.setStack(ClumpItem.reduceClump(itemStack));
+            if (insertIsClump) stack = ClumpItem.reduceClump(stack);
         }
         return stack;
     }

@@ -1,18 +1,16 @@
 package net.dev.itemclumps.mixin;
 
 import com.google.common.collect.Sets;
+import net.dev.itemclumps.item.ClumpItem;
 import net.dev.itemclumps.util.ClumpItemUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.StackReference;
 import net.minecraft.item.ItemStack;
-import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.ClickType;
 import net.minecraft.util.collection.DefaultedList;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -27,7 +25,6 @@ import static net.minecraft.screen.ScreenHandler.EMPTY_SPACE_SLOT_INDEX;
 public abstract class ScreenHandlerMixin {
 
     private final Set<Slot> quickCraftSlots = Sets.newHashSet();
-
     @Shadow private int quickCraftStage;
     @Shadow protected abstract void endQuickCraft();
     @Shadow public abstract ItemStack getCursorStack();
@@ -106,18 +103,31 @@ public abstract class ScreenHandlerMixin {
                                                             this.endQuickCraft();
                                                             return;
                                                         }
-                                                        int k = this.getCursorStack().getCount();
-                                                        for (Slot slot2 : this.quickCraftSlots) {
-                                                            ItemStack itemStack3 = this.getCursorStack();
-                                                            if (slot2 == null || !ScreenHandler.canInsertItemIntoSlot(slot2, itemStack3, true) || !slot2.canInsert(itemStack3) || this.quickCraftButton != 2 && itemStack3.getCount() < this.quickCraftSlots.size() || !this.canInsertIntoSlot(slot2)) continue;
-                                                            int l = slot2.hasStack() ? slot2.getStack().getCount() : 0;
-                                                            int m = Math.min(itemStack2.getMaxCount(), slot2.getMaxItemCount(itemStack2));
-                                                            int n = Math.min(ScreenHandler.calculateStackSize(this.quickCraftSlots, this.quickCraftButton, itemStack2) + l, m);
-                                                            k -= n - l;
-                                                            slot2.setStack(itemStack2.copyWithCount(n));
+                                                        if (ClumpItem.isClump(itemStack2.getItem())) {
+                                                            for (Slot slot2 : this.quickCraftSlots) {
+                                                                ItemStack cursorStack = this.getCursorStack();
+                                                                if (slot2 == null || !ScreenHandler.canInsertItemIntoSlot(slot2, cursorStack, true) || !slot2.canInsert(cursorStack) || this.quickCraftButton != 2 && cursorStack.getCount() < this.quickCraftSlots.size() || !this.canInsertIntoSlot(slot2))
+                                                                    continue;
+                                                                ItemStack topStack = ClumpItem.removeTopStack(cursorStack, -1);
+                                                                ItemStack remainderStack = slot2.insertStack(topStack);
+                                                                if (remainderStack.getCount() > 0) ClumpItem.addToClump(cursorStack, remainderStack);
+                                                            }
+                                                            this.setCursorStack(ClumpItem.reduceClump(this.getCursorStack()));
+                                                        } else {
+                                                            int k = this.getCursorStack().getCount();
+                                                            for (Slot slot3 : this.quickCraftSlots) {
+                                                                ItemStack itemStack3 = this.getCursorStack();
+                                                                if (slot3 == null || !ScreenHandler.canInsertItemIntoSlot(slot3, itemStack3, true) || !slot3.canInsert(itemStack3) || this.quickCraftButton != 2 && itemStack3.getCount() < this.quickCraftSlots.size() || !this.canInsertIntoSlot(slot3))
+                                                                    continue;
+                                                                int l = slot3.hasStack() ? slot3.getStack().getCount() : 0;
+                                                                int m = Math.min(itemStack2.getMaxCount(), slot3.getMaxItemCount(itemStack2));
+                                                                int n = Math.min(ScreenHandler.calculateStackSize(this.quickCraftSlots, this.quickCraftButton, itemStack2) + l, m);
+                                                                k -= n - l;
+                                                                slot3.setStack(itemStack2.copyWithCount(n));
+                                                            }
+                                                            itemStack2.setCount(k);
+                                                            this.setCursorStack(itemStack2);
                                                         }
-                                                        itemStack2.setCount(k);
-                                                        this.setCursorStack(itemStack2);
                                                     }
                                                     this.endQuickCraft();
                                                 } else {
@@ -175,8 +185,8 @@ public abstract class ScreenHandlerMixin {
                                                         this.setCursorStack((ItemStack)stack);
                                                         slot4.onTakeItem(player, (ItemStack)stack);
                                                     });
-                                                } else if (slot4.canInsert(itemStack42) || ClumpItemUtil.canClump(slot4.getStack(), itemStack42)) {
-                                                    if (ItemStack.canCombine(itemStack4, itemStack42) || ClumpItemUtil.canClump(slot4.getStack(), itemStack42)) {
+                                                } else if (slot4.canInsert(itemStack42) || ClumpItem.canClump(slot4.getStack(), itemStack42)) {
+                                                    if (ItemStack.canCombine(itemStack4, itemStack42) || ClumpItem.canClump(slot4.getStack(), itemStack42)) {
                                                         int o = clickType == ClickType.LEFT ? itemStack42.getCount() : 1;
                                                         this.setCursorStack(slot4.insertStack(itemStack42, o));
                                                     } else if (itemStack42.getCount() <= slot4.getMaxItemCount(itemStack42)) {

@@ -2,7 +2,6 @@ package net.dev.itemclumps;
 
 import net.dev.itemclumps.item.ClumpItems;
 import net.fabricmc.api.ModInitializer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +12,6 @@ public class ItemClumps implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		ClumpItems.registerModItems();
+		ClumpItems.registerModClumpItems();
 	}
 }

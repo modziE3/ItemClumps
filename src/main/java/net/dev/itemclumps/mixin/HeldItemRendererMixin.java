@@ -33,12 +33,12 @@ public abstract class HeldItemRendererMixin {
         this.prevEquipProgressOffHand = this.equipProgressOffHand;
         ClientPlayerEntity clientPlayerEntity = this.client.player;
         ItemStack itemStack = clientPlayerEntity.getMainHandStack();
-        if (ClumpItemUtil.isClump(itemStack.getItem())) {
-            itemStack = ClumpItem.getTopClump(itemStack);
+        if (ClumpItem.isClump(itemStack.getItem())) {
+            itemStack = ClumpItem.getTopStack(itemStack);
         }
         ItemStack itemStack2 = clientPlayerEntity.getOffHandStack();
-        if (ClumpItemUtil.isClump(itemStack2.getItem())) {
-            itemStack2 = ClumpItem.getTopClump(itemStack2);
+        if (ClumpItem.isClump(itemStack2.getItem())) {
+            itemStack2 = ClumpItem.getTopStack(itemStack2);
         }
         if (ItemStack.areEqual(this.mainHand, itemStack)) {
             this.mainHand = itemStack;

@@ -13,5 +13,10 @@
   "name": "Planks",
   "tag_id": "#minecraft:planks",
   "enabled": true
+  },
+  {
+    "name": "Leaves",
+    "tag_id": "#minecraft:leaves",
+    "enabled": true
   }
 ]

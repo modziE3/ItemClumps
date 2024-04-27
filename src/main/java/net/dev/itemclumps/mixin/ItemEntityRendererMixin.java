@@ -1,5 +1,6 @@
 package net.dev.itemclumps.mixin;
 
+import net.dev.itemclumps.item.ClumpItem;
 import net.dev.itemclumps.util.ClumpItemUtil;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -13,7 +14,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.random.Random;
@@ -23,16 +23,15 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ItemEntityRenderer.class)
-public abstract class ItemEntityRendererMixin
-        extends EntityRenderer<ItemEntity> {
-
-    @Shadow @Final private ItemRenderer itemRenderer;
-    @Shadow @Final private Random random;
-    @Shadow protected abstract int getRenderedAmount(ItemStack stack);
+public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity> {
 
     protected ItemEntityRendererMixin(EntityRendererFactory.Context ctx) {
         super(ctx);
     }
+
+    @Shadow @Final private Random random;
+    @Shadow @Final private ItemRenderer itemRenderer;
+    @Shadow protected abstract int getRenderedAmount(ItemStack stack);
 
     /**
      * @author Modzyyy
@@ -44,6 +43,11 @@ public abstract class ItemEntityRendererMixin
         float s;
         matrixStack.push();
         ItemStack itemStack = itemEntity.getStack();
+        if (ClumpItem.isClump(itemStack.getItem())) {
+            int count = itemStack.getCount();
+            itemStack = ClumpItem.getTopStack(itemStack);
+            itemStack.setCount(count);
+        }
         int j = itemStack.isEmpty() ? 187 : Item.getRawId(itemStack.getItem()) + itemStack.getDamage();
         this.random.setSeed(j);
         BakedModel bakedModel = this.itemRenderer.getModel(itemStack, itemEntity.getWorld(), null, itemEntity.getId());
@@ -78,11 +82,7 @@ public abstract class ItemEntityRendererMixin
                     matrixStack.translate(s, t, 0.0f);
                 }
             }
-            ItemStack usedStack = itemStack;
-            if (ClumpItemUtil.isClump(itemStack.getItem())) {
-                usedStack = new ItemStack(Items.BEDROCK, 32);
-            }
-            this.itemRenderer.renderItem(usedStack, ModelTransformationMode.GROUND, false, matrixStack, vertexConsumerProvider, i, OverlayTexture.DEFAULT_UV, bakedModel);
+            this.itemRenderer.renderItem(itemStack, ModelTransformationMode.GROUND, false, matrixStack, vertexConsumerProvider, i, OverlayTexture.DEFAULT_UV, bakedModel);
             matrixStack.pop();
             if (bl) continue;
             matrixStack.translate(0.0f * o, 0.0f * p, 0.09375f * q);
